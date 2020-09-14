@@ -22,3 +22,12 @@ a = a.float()
 print(torch.matmul(a, t))
 # 转置
 print(a.T)
+
+# 求平方、开方、总和、最大...
+print(a ** 2)
+print(torch.sqrt(a))
+print(torch.sum(a))
+print(torch.mean(a))
+print(torch.median(a))
+print(torch.max(a))
+print(torch.argmax(a))  # 最大值所在索引位置
