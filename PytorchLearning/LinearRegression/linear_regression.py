@@ -8,7 +8,7 @@ from torch import nn, optim
 from torch.autograd import Variable
 import torch
 import os
-
+#
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 
@@ -32,7 +32,6 @@ if __name__ == '__main__':
     x_data = np.random.rand(100)
     # 0-0.01内的噪点数据，尺寸和x_data一样
     noise = np.random.normal(0, 0.01, x_data.shape)
-    # print(noise.shape,x_data.shape)
     # 因变量
     y_data = x_data * 0.1 + 0.2 + noise
     print(y_data.shape)
