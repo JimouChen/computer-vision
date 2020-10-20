@@ -1,2 +1,3 @@
 # computer-vision
-using OpenCV and some DL
+- using OpenCV
+- using Torch

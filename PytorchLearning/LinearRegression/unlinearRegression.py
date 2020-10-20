@@ -18,9 +18,9 @@ class UnLinearRegression(nn.Module):
     def __init__(self):
         super().__init__()  # 初始化父类
         '''1-10-1的结构'''
-        # 加一个隐藏层，10个神经元
+        # 加一个隐藏层，10个神经元，即1-10-1
         self.fc1 = nn.Linear(1, 10)
-        self.tanh = nn.Tanh()  # (双矩阵)激活函数
+        self.tanh = nn.Tanh()  # (双曲正切)激活函数
         self.fc2 = nn.Linear(10, 1)  # 全连接层/输出层
 
     # 定义网络计算，(前向的计算)
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     # for name, param in model.named_parameters():
     #     print(name,param)
 
-    # 训练模型1000次
+    # 训练模型2000次
     for i in range(2001):
         out = model(inputs)
         # 计算loss

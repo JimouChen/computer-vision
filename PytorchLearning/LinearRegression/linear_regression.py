@@ -60,7 +60,7 @@ if __name__ == '__main__':
     #     print(name,param)
 
     # 训练模型1000次
-    for i in range(1000):
+    for i in range(1001):
         out = model(inputs)
         # 计算loss
         mse_loss = loss(out, target)
