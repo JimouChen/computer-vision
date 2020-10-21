@@ -1,5 +1,5 @@
 """
-# @Time    :  2020/9/15
+# @Time    :  2020/10/21
 # @Author  :  Jimou Chen
 """
 import torch
@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     # 定义模型,损失函数，优化器
     model = Net()
-    mse_loss = nn.MSELoss()
+    cross_loss = nn.CrossEntropyLoss()
     opt = optim.SGD(model.parameters(), lr=0.5)
 
 
@@ -67,12 +67,8 @@ if __name__ == '__main__':
             input_data, labels = data
             # 获得模型的结果
             out = model(input_data)
-            # (64)——>(64, 1)
-            labels = labels.reshape(-1, 1)
-            # 转换为独热编码
-            one_hot = torch.zeros(input_data.shape[0], 10).scatter(1, labels, 1)
-            # 计算loss,out, one_hot的shape要一致
-            loss = mse_loss(out, one_hot)
+            # 使用交叉熵代价函数，shape不用一样，out(batch, class_num),labels(batch)
+            loss = cross_loss(out, labels)
             # 梯度清零
             opt.zero_grad()
             # 计算梯度

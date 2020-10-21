@@ -1,5 +1,5 @@
 """
-# @Time    :  2020/9/15
+# @Time    :  2020/10/21
 # @Author  :  Jimou Chen
 """
 import torch
@@ -12,16 +12,17 @@ from torch.utils.data import DataLoader
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        # 结构中只有输入和输出层
-        self.fc1 = nn.Linear(784, 10)
-        # 给一个激活函数,dim=1是第一个维度，即输出第一个维度的概率
-        self.softmax = nn.Softmax(dim=1)
+        # 三层，p=0.5是有该隐藏层一半的神经元不训练，表示有百分之多少的神经元不工作
+        self.layer1 = nn.Sequential(nn.Linear(784, 500), nn.Dropout(p=0.5), nn.Tanh())
+        self.layer2 = nn.Sequential(nn.Linear(500, 300), nn.Dropout(p=0.5), nn.Tanh())
+        self.layer3 = nn.Sequential(nn.Linear(300, 10), nn.Softmax(dim=1))
 
     def forward(self, x):
         # 全连接层把(64, 1, 28, 28)转换为二维(64, 784),view相当于reshape,784=1*28*28
         x = x.view(x.size()[0], -1)
-        x = self.fc1(x)
-        x = self.softmax(x)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
         return x
 
 
@@ -48,31 +49,22 @@ if __name__ == '__main__':
                            batch_size=batch_size,
                            shuffle=True)
 
-    # for i, data in enumerate(train_load):
-    #     inputs, labels = data
-    #     print(inputs.shape)
-    #     print(labels.shape)
-    #     print(labels)
-    #     break
-
     # 定义模型,损失函数，优化器
     model = Net()
-    mse_loss = nn.MSELoss()
+    cross_loss = nn.CrossEntropyLoss()
     opt = optim.SGD(model.parameters(), lr=0.5)
 
 
     def train():
+        # 设为训练状态，使用训练时dropout起作用
+        model.train()
         for i, data in enumerate(train_load):
             # 每一次迭代都返回一组输入数据和标签
             input_data, labels = data
             # 获得模型的结果
             out = model(input_data)
-            # (64)——>(64, 1)
-            labels = labels.reshape(-1, 1)
-            # 转换为独热编码
-            one_hot = torch.zeros(input_data.shape[0], 10).scatter(1, labels, 1)
-            # 计算loss,out, one_hot的shape要一致
-            loss = mse_loss(out, one_hot)
+            # 使用交叉熵代价函数，shape不用一样，out(batch, class_num),labels(batch)
+            loss = cross_loss(out, labels)
             # 梯度清零
             opt.zero_grad()
             # 计算梯度
@@ -83,6 +75,8 @@ if __name__ == '__main__':
 
     # 定义一个测试数据的函数
     def test():
+        # 设为测试状态，使用训练时dropout不起作用
+        model.eval()
         correct = 0
         for i, data in enumerate(test_load):
             # 每一次迭代都返回一组输入数据和标签
@@ -94,11 +88,26 @@ if __name__ == '__main__':
             # 用这64个预测数据与标签做一个对比，统计预测正确的数量
             correct += (pred_index == labels).sum()
 
-        print('准确率：{0}'.format(correct.item() / len(test_data)))
+        print('测试集准确率：{0}'.format(correct.item() / len(test_data)))
+
+        # 下面对训练数据进行测试
+        correct = 0
+        for i, data in enumerate(train_load):
+            # 每一次迭代都返回一组输入数据和标签
+            input_data, labels = data
+            # 获得模型的结果
+            out = model(input_data)
+            # 获得第一个维度的最大值，以及最大值所在的位置
+            max_value, pred_index = torch.max(out, 1)
+            # 用这64个预测数据与标签做一个对比，统计预测正确的数量
+            correct += (pred_index == labels).sum()
+
+        print('训练集准确率：{0}'.format(correct.item() / len(train_data)))
 
 
-    # 训练和测试10个周期
-    for i in range(10):
+
+    # 训练和测试20个周期
+    for i in range(20):
         print(i, ':', end='')
         train()
         test()
