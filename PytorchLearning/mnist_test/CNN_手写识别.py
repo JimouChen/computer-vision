@@ -1,5 +1,5 @@
 """
-# @Time    :  2020/10/21
+# @Time    :  2020/10/22
 # @Author  :  Jimou Chen
 """
 import torch
@@ -12,17 +12,20 @@ from torch.utils.data import DataLoader
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        # 三层，p=0.5是有该隐藏层一半的神经元不训练，表示有百分之多少的神经元不工作
-        self.layer1 = nn.Sequential(nn.Linear(784, 500), nn.Dropout(p=0), nn.Tanh())
-        self.layer2 = nn.Sequential(nn.Linear(500, 300), nn.Dropout(p=0), nn.Tanh())
-        self.layer3 = nn.Sequential(nn.Linear(300, 10), nn.Softmax(dim=1))
+        # 卷积->池化->卷积->池化->全连接->全连接
+        self.conv1 = nn.Sequential(nn.Conv2d(1, 32, 5, 1, 2), nn.ReLU(), nn.MaxPool2d(2, 2))
+        self.conv2 = nn.Sequential(nn.Conv2d(32, 64, 5, 1, 2), nn.ReLU(), nn.MaxPool2d(2, 2))
+        self.fc1 = nn.Sequential(nn.Linear(64 * 7 * 7, 1000), nn.Dropout(p=0.5), nn.ReLU())
+        self.fc2 = nn.Sequential(nn.Linear(1000, 10), nn.Softmax(dim=1))
 
     def forward(self, x):
-        # 全连接层把(64, 1, 28, 28)转换为二维(64, 784),view相当于reshape,784=1*28*28
+        # (64, 1, 28, 28)传入的维度
+        x = self.conv1(x)
+        x = self.conv2(x)
+        # 下面是全连接，所以转成2维数据
         x = x.view(x.size()[0], -1)
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
+        x = self.fc1(x)
+        x = self.fc2(x)
         return x
 
 
@@ -52,8 +55,7 @@ if __name__ == '__main__':
     # 定义模型,损失函数，优化器
     model = Net()
     cross_loss = nn.CrossEntropyLoss()
-    # weight_decay是l2正则化系数，加上就是设置l2正则化项
-    opt = optim.SGD(model.parameters(), lr=0.5, weight_decay=0.0001)
+    opt = optim.Adam(model.parameters(), lr=0.001)  # 使用Adam时，把学习率改小一点
 
 
     def train():
