@@ -117,3 +117,8 @@ self.fc2 = nn.Sequential(nn.Linear(1000, 10), nn.Softmax(dim=1))
     - 处理图像问题的话，效果比不上CNN
     
     
+## nn.models
+- 里面有很多已经使用imageNet训练好的模型，比如AlexNet，GoogleNet，VGG4...
+- 一般最后全连接层应该加个Softmax函数转换成概率输出，但是如果代价函数使用了交叉熵的话，
+也就是CrossEntropyLoss，它里面已经包含了Softmax，所以模型最后可以不用加上Softmax，
+加上的话，相当于做了两次Softmax
