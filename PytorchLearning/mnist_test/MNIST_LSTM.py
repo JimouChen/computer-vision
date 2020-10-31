@@ -15,7 +15,18 @@ class LSTM_Net(nn.Module):
         # 输入特征的大小，LSTM模块的数量，LSTM的层数
         self.lstm = nn.LSTM(input_size=28, hidden_size=64, num_layers=1, batch_first=True)
 
+        # 设置隐藏层,64个输入，10个输出的全连接
+        self.out = nn.Linear(64, 10)
+        self.softmax = nn.Softmax(dim=1)
+
     def forward(self, x):
+        # LSTM要求输入数据必须是三维,-1是自动匹配
+        # (批次64，序列长度28， 特征数量28)
+        x = x.view(-1, 28, 28)
+        output, (h_n, c_n) = self.lstm(x)
+        output_in_last_timestep = h_n[-1, :, :]
+        x = self.out(output_in_last_timestep)
+        x = self.softmax(x)
         return x
 
 

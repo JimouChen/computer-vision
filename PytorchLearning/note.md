@@ -110,3 +110,10 @@ self.fc2 = nn.Sequential(nn.Linear(1000, 10), nn.Softmax(dim=1))
         > 如果句子太长(序列太长)的话，可能就得到的结果会不准，因为梯度消失
 
 
+## LTSM
+- 要求的传入的input是三维的数据， 即
+    - input(seq_len, batch, feather)
+    - 序列的长度，批次的大小，特征的数量
+    - 处理图像问题的话，效果比不上CNN
+    
+    
