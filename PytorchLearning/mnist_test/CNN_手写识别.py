@@ -8,6 +8,8 @@ from torch.autograd import Variable
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
+gpu = torch.cuda.is_available()
+
 
 class Net(nn.Module):
     def __init__(self):
@@ -54,6 +56,8 @@ if __name__ == '__main__':
 
     # 定义模型,损失函数，优化器
     model = Net()
+    if gpu:
+        model = model.cuda()
     cross_loss = nn.CrossEntropyLoss()
     opt = optim.Adam(model.parameters(), lr=0.001)  # 使用Adam时，把学习率改小一点
 
@@ -64,6 +68,9 @@ if __name__ == '__main__':
         for i, data in enumerate(train_load):
             # 每一次迭代都返回一组输入数据和标签
             input_data, labels = data
+            if gpu:
+                input_data = input_data.cuda()
+                labels = labels.cuda()
             # 获得模型的结果
             out = model(input_data)
             # 使用交叉熵代价函数，shape不用一样，out(batch, class_num),labels(batch)
@@ -84,6 +91,9 @@ if __name__ == '__main__':
         for i, data in enumerate(test_load):
             # 每一次迭代都返回一组输入数据和标签
             input_data, labels = data
+            if gpu:
+                input_data = input_data.cuda()
+                labels = labels.cuda()
             # 获得模型的结果
             out = model(input_data)
             # 获得第一个维度的最大值，以及最大值所在的位置
@@ -98,6 +108,9 @@ if __name__ == '__main__':
         for i, data in enumerate(train_load):
             # 每一次迭代都返回一组输入数据和标签
             input_data, labels = data
+            if gpu:
+                input_data = input_data.cuda()
+                labels = labels.cuda()
             # 获得模型的结果
             out = model(input_data)
             # 获得第一个维度的最大值，以及最大值所在的位置
